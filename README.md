@@ -110,3 +110,40 @@ print(queue.peek())    # [1,2,3]
 print(queue.dequeue()) # 1
 print(queue.peek())    # [2,3]
 ```
+
+#### Deque
+
+Queue는 선입선출(FIFO:First In First Out)이지만, Deque(Double Ended Queue)는 양방향으로 입(In)과 출(Out)이 가능한 큐를 뜻한다. 
+
+![다운로드](https://user-images.githubusercontent.com/76871728/144553819-713834e1-9d77-4592-96fd-9a16463558e7.jpg)
+(출처:https://jjudrgn.tistory.com/15)
+
+양 끝의 데이터를 추가하거나 삭제시키는 형태이다.
+Deque를 코드로 구현해보자.
+
+```python
+import time
+import datetime
+
+from collections import deque
+
+
+def timestamp(obj, iter_=20000):
+    print(type(obj))
+    start = time.time()
+    for i in range(iter_):
+        if isinstance(obj, deque):
+            obj.appendleft(i)
+        elif isinstance(obj, list):
+            obj.insert(0, i)
+    end = time.time()
+    print(datetime.timedelta(end-start), '\n')
+
+
+deq = deque([i for i in range(100)])
+li = list([i for i in range(100)])
+timestamp(deq)  # 0:00:00
+timestamp(li)   # 3:45:02.245331
+```
+
+List가 아닌 Deque를 사용하는 이유는 list의 insert도 양방향으로 입(In)이 가능하다. 하지만, insert는 한칸을 미리 비워놓고 할당하는 형식이라면 Deque는 그런 형식이 필요없이 바로 새로운 데이터를 넣을 수 있다. 이건 시간을 빠르게 줄일 수 있다. 예를 들어 insert(0, 4)를 한 경우 0인덱스의 공간을 미리 비워놓고 그 다음 숫자 4를 할당해서 시간이 소모가 있다. 하지만 Deque는 바로 숫자 4를 할당하기 때문에 시간 소모가 insert보다 적다.
