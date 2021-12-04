@@ -147,3 +147,164 @@ timestamp(li)   # 3:45:02.245331
 ```
 
 List가 아닌 Deque를 사용하는 이유는 list의 insert도 양방향으로 입(In)이 가능하다. 하지만, insert는 한칸을 미리 비워놓고 할당하는 형식이라면 Deque는 그런 형식이 필요없이 바로 새로운 데이터를 넣을 수 있다. 이건 시간을 빠르게 줄일 수 있다. 예를 들어 insert(0, 4)를 한 경우 0인덱스의 공간을 미리 비워놓고 그 다음 숫자 4를 할당해서 시간이 소모가 있다. 하지만 Deque는 바로 숫자 4를 할당하기 때문에 시간 소모가 insert보다 적다.
+
+### 연결 리스트(Linked List)
+
+연결 리스트에는 단방향 연결 리스트와 양방향 연결 리스트로 구분되어 있다. 연결 리스트는 다수의 노드로 구성되어 있다. 여기서 노드란, 메모리상에 흩어져 있는 data들이 있다. 그런 각각의 data들을 노드라고 말합니다. 노드는 또한 다음 노드의 주소도 가지고 있다.
+연결 리스트의 장점과 단점이 있다.
++ 장점
+  + 연결 리스트의 길이를 조절 할 수 있다.
+  + 데이터의 삭제와 삽입이 쉽다.
++ 단점
+  + 다음 노드의 주소를 저장하는 추가 공간이 필요하다.
+  + 역순으로 탐색하기가 어렵다. 
+
+#### 단방향 연결 리스트(Single Linked List)
+
+단방향 연결 리스트는 head노드에 다음 노드로만 연결한다.
+
+![다운로드](https://user-images.githubusercontent.com/76871728/144706006-ef74c2c3-e59b-4c7c-b027-68ce015769a0.png)
+
+(출처:https://chanos.tistory.com/entry/%EC%9E%90%EB%A3%8C%EA%B5%AC%EC%A1%B0-%EB%8B%A8%EB%B0%A9%ED%96%A5-%EC%97%B0%EA%B2%B0%EB%A6%AC%EC%8A%A4%ED%8A%B8Singly-Linked-List%EB%9E%80-%EA%B5%AC%ED%98%84%ED%95%98%EA%B8%B0)
+
+위에 그림처럼 다음 노드의 주소를 저장하는 것을 볼 수 있다.
+단방향 연결 리스트를 구현해보자.
+
+```python
+class Node:
+    def __init__(self, data):
+        self.data = data
+        self.next: Node = None
+
+
+class SingleLinkedList:
+    def __init__(self, values: list):
+        self.head: Node = None
+        self.tail: Node = None
+        self._count = 0
+        self.__init_linked_list(values)
+
+    def __len__(self):
+        return self._count
+
+    def __init_linked_list(self, values):
+        if not len(values):
+            return None
+
+        self.head = curr_node = Node(values[0])
+        self._count= 1
+
+        for value in values[1:]:
+            new_node = Node(value)
+            curr_node.next = new_node
+            curr_node = new_node
+            self._count += 1
+
+        self.tail = curr_node
+
+    def select_node(self, idx):
+        if self.is_empty() or idx > self._count-1:
+            return None
+        if idx == 0:
+            return self.head
+        elif idx == self._count-1:
+            return self.tail
+        else:
+            curr_idx, curr_node = 0, self.head
+            while curr_idx < idx:
+                curr_node = curr_node.next
+                curr_idx += 1
+            return curr_node
+
+    def append(self, value):
+        new_node = Node(value)
+        self.tail.next = new_node
+        self.tail = new_node
+        self._count += 1
+
+    def append_left(self, value):
+        new_code = Node(value)
+        new_code.next = self.head
+        self.head = new_code
+        self._count += 1
+
+    def pop(self):
+        new_code = self.select_node(self._count-2)
+        new_code.next = None
+        del self.tail
+        self.tail = new_code
+        self._count -= 1
+
+    def pop_left(self):
+        new_code = self.head.next
+        del self.head
+        self.head = new_code
+        self._count -= 1
+
+    def insert(self, idx, value):
+        if idx > self._count-1:
+            return None
+        if idx == 0:
+            return self.append_left(value)
+        elif idx == self._count-1:
+            self.append(value)
+        else:
+            std_node = self.select_node(idx)
+            next_node = std_node.next
+            new_node = Node(value)
+            std_node.next = new_node
+            new_node.next = next_node
+            self._count += 1
+
+    def delete(self, idx):
+        if idx > self._count-1:
+            return None
+        if idx == 0:
+            self.pop_left()
+        elif idx == self._count-1:
+            self.pop()
+        else:
+            std_node = self.select_node(idx-1)
+            del_node = std_node.next
+            next_node = del_node.next
+            std_node.next = next_node
+            del del_node
+            self._count -= 1
+
+    def is_empty(self):
+        return True if self._count == 0 else False
+
+    def peek_all(self):
+        curr_node = self.head
+        nodes = list()
+        while curr_node is not None:
+            nodes.append(curr_node.data)
+            curr_node = curr_node.next
+        return nodes
+
+    def print(self):
+        nodes = self.peek_all()
+        print(nodes, 'len : ', self._count)
+
+
+sll = SingleLinkedList([1, 2, 3, 4, 5])
+sll.print() # [1, 2, 3, 4, 5] len :  5
+
+sll.insert(4, 6)
+sll.print() # [1, 2, 3, 4, 5, 6] len :  6
+
+sll.append(7)
+sll.print() # [1, 2, 3, 4, 5, 6, 7] len :  7
+
+sll.append_left(0)
+sll.print() # [0, 1, 2, 3, 4, 5, 6, 7] len :  8
+
+sll.pop()
+sll.print() # [0, 1, 2, 3, 4, 5, 6] len :  7
+
+sll.pop_left()
+sll.print() # [1, 2, 3, 4, 5, 6] len :  6
+
+sll.delete(5)
+sll.print() # [1, 2, 3, 4, 5] len :  5
+```
